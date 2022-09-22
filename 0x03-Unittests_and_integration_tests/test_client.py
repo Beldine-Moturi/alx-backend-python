@@ -2,8 +2,9 @@
 """Contains tests for functions in the module client"""
 import unittest
 from unittest.mock import PropertyMock, patch
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
+from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -69,3 +70,41 @@ class TestGithubOrgClient(unittest.TestCase):
             GithubOrgClient.has_license(repo, key),
             expected
         )
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    TEST_PAYLOAD
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """an integration test for githuborg client"""
+
+    @classmethod
+    def setUpClass(cls):
+        """ set up class befor each method"""
+        config = {'return_value.json.side_effect':
+                  [
+                    cls.org_payload, cls.repos_payload,
+                    cls.org_payload, cls.repos_payload
+                  ]
+                  }
+        cls.get_patcher = patch('requests.get', **config)
+        cls.mock = cls.get_patcher.start()
+
+    def test_public_repos(self):
+        """add some more integration"""
+        tst_cls = GithubOrgClient('Facebook')
+        self.assertEqual(tst_cls.org, self.org_payload)
+        self.assertEqual(tst_cls.repos_payload, self.repos_payload)
+        self.assertEqual(tst_cls.public_repos(), self.expected_repos)
+        self.mock.assert_called()
+
+    def test_public_repos_with_license(self):
+        """ method to test the public_repos with the argument license """
+        test_class = GithubOrgClient("holberton")
+        assert True
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """tear down after each class"""
+        cls.get_patcher.stop()
