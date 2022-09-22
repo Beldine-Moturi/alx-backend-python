@@ -73,6 +73,3 @@ def memoize(fn: Callable) -> Callable:
         return getattr(self, attr_name)
 
     return property(memoized)
-
-
-print(access_nested_map({"a": {"b": 2}}, ("a", "b")))
