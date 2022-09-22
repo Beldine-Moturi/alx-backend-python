@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Contains tests for functions in the module client"""
 import unittest
-from unittest.mock import PropertyMock, patch, Mock
+from unittest.mock import PropertyMock, patch
 from parameterized import parameterized
 from client import GithubOrgClient
 
@@ -32,3 +32,28 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_org.return_value = expected
         test_property = GithubOrgClient(name)._public_repos_url
         self.assertEqual(test_property, expected.get('repos_url'))
+
+    @patch('client.get_json')
+    @patch.object(
+        GithubOrgClient,
+        '_public_repos_url',
+        new_callable=PropertyMock
+        )
+    def test_public_repos(self, mock_public_repos, mock_get_json):
+        """Tests public_repos method"""
+
+        payload = [
+            {"name": "url_1"},
+            {"name": "url_2"},
+            {"name": "url_3"}
+        ]
+
+        mock_get_json.return_value = payload
+        mock_public_repos.return_value = "some_url"
+
+        test_client = GithubOrgClient("example_name")
+        repos = test_client.public_repos()
+        self.assertEqual(repos, [p["name"] for p in payload])
+
+        mock_public_repos.assert_called_once()
+        mock_get_json.assert_called_once()
