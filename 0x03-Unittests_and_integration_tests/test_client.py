@@ -81,7 +81,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """ set up class befor each method"""
+        """sets up resources needed to run the tests"""
         config = {'return_value.json.side_effect':
                   [
                     cls.org_payload, cls.repos_payload,
@@ -92,7 +92,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.mock = cls.get_patcher.start()
 
     def test_public_repos(self):
-        """add some more integration"""
+        """tests public_repos method"""
         tst_cls = GithubOrgClient('Facebook')
         self.assertEqual(tst_cls.org, self.org_payload)
         self.assertEqual(tst_cls.repos_payload, self.repos_payload)
@@ -100,11 +100,11 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.mock.assert_called()
 
     def test_public_repos_with_license(self):
-        """ method to test the public_repos with the argument license """
+        """tests public repos has licence """
         test_class = GithubOrgClient("holberton")
         assert True
 
     @classmethod
     def tearDownClass(cls) -> None:
-        """tear down after each class"""
+        """tears down resources set up during the tests"""
         cls.get_patcher.stop()
